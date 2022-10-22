@@ -15,10 +15,12 @@ opcion = st.sidebar.selectbox(
 
 st.sidebar.write('Has seleccionado la función tipo :', opcion)
 
-n=st.number_input("Ingrese el numero de armonicos",step=5,min_value=0,max_value=50,value=5)
+n=st.sidebar.number_input("Ingrese el numero de armonicos",step=1,min_value=2,max_value=100,value=2)
 x=np.arange(-np.pi,np.pi,0.001) 
 
+#DECLARACION DE FUNCIONES
 def funcion_grafica(x,y,sum):
+    st.title("Función "+ str(opcion))
     fig,ax=plt.subplots()
     ax.plot(x,sum,'g')
     plt.plot(x,y,'r--')
@@ -29,22 +31,22 @@ def funcion_grafica(x,y,sum):
     st.pyplot(fig)
 
 def Fourier(y,fun):
-    
-    fc=lambda x: np.exp(x)*cos(i*x)  
-    fs=lambda x: np.exp(x)*sin(i*x)
 
     An=[] 
     Bn=[]
 
+    fun_cos=lambda x: np.exp(x)*cos(i*x)  
+    fun_sen=lambda x: np.exp(x)*sin(i*x)
+
     sum=0
 
     for i in range(n):
-        an=quad(fc,-np.pi,np.pi)[0]*(1.0/np.pi)
+        an=quad(fun_cos,-np.pi,np.pi)[0]*(1.0/np.pi)
         An.append(an)
 
     for i in range(n):
 
-        bn=quad(fs,-np.pi,np.pi)[0]*(1.0/np.pi)
+        bn=quad(fun_sen,-np.pi,np.pi)[0]*(1.0/np.pi)
         Bn.append(bn) 
 
     for i in range(n):
@@ -53,27 +55,38 @@ def Fourier(y,fun):
             
         else:
             sum=sum+(An[i]*np.cos(i*x)+Bn[i]*np.sin(i*x))
+
+    return sum
 
 
 if opcion == "Exponencial":
 
-    y=np.exp(x) 
+    y= np.exp(x) 
+    serie=Fourier(y,np.exp)
+    funcion_grafica(x,y,serie)  
 
-    fc=lambda x: np.exp(x)*cos(i*x)  
-    fs=lambda x: np.exp(x)*sin(i*x)
+if opcion == "Senoidal rectificada":
+    
+    amplitude = st.number_input("Por favor ingrese el valor de la amplitud A: ",step=1,min_value=-10,max_value=10,value=1)
+    
+    y=abs(np.sin(2*np.pi*x))
+    y=y*amplitude
 
     An=[] 
     Bn=[]
 
+    fun_cos=lambda x: amplitude*abs(np.sin(2*np.pi*x))*cos(i*x)  
+    fun_sen=lambda x: amplitude*abs(np.sin(2*np.pi*x))*sin(i*x)
+
     sum=0
 
     for i in range(n):
-        an=quad(fc,-np.pi,np.pi)[0]*(1.0/np.pi)
+        an=quad(fun_cos,-np.pi,np.pi)[0]*(1.0/np.pi)
         An.append(an)
 
     for i in range(n):
 
-        bn=quad(fs,-np.pi,np.pi)[0]*(1.0/np.pi)
+        bn=quad(fun_sen,-np.pi,np.pi)[0]*(1.0/np.pi)
         Bn.append(bn) 
 
     for i in range(n):
@@ -82,27 +95,6 @@ if opcion == "Exponencial":
             
         else:
             sum=sum+(An[i]*np.cos(i*x)+Bn[i]*np.sin(i*x))
-        
-    funcion_grafica(x,y,sum)  
-
-if opcion == "Senoidal rectificada":
+            
     
-    st.title("Función Seno")
-
-    frecuencia = st.number_input("Por favor ingrese el valor de la frecuencia f: ",step=1,min_value=1,max_value=10)
-    amplitude = st.number_input("Por favor ingrese el valor de la amplitud A: ",step=1,min_value=-10,max_value=10,value=1)
-    
-    paso=(1/(300*frecuencia))
-    x=np.arange(0,2*np.pi,paso)
-    y=abs(np.sin(2*np.pi*frecuencia*x))
-    y=y*amplitude
-
-    fig,ax=plt.subplots()
-    ax.plot(x,y)
-    ax.set_title("Función Seno")
-    ax.set_xlabel("Eje x")
-    ax.set_ylabel("Eje y")
-    ax.set_xlim(0,np.pi)
-    ax.set_ylim(-10,10)
-    ax.grid(True)
-    st.pyplot(fig)
+    funcion_grafica(x,y,sum)
