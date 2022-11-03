@@ -1,5 +1,5 @@
 import numpy as np
-import matplotlib.pyplot as fig
+import matplotlib.pyplot as plt
 import streamlit as st
 from scipy import signal
 from scipy.integrate import quad
@@ -9,180 +9,257 @@ from math import*
 st.sidebar.title('Laboratorio 3 - Señales y sistemas')
 st.sidebar.subheader("Jessir Florez - Mateo Muñoz - Dylan Abuchaibe")
 
-#SELECCIONADOR DE SEÑALES
-opcion = st.sidebar.selectbox(
-     'Escoja la señal que desea generar a continuación:',
-     ("Exponencial","Senoidal rectificada","Triangular","Rectangular","Rampa trapezoidal"))
+#SELECCIONADOR DE SERIE Y TRANSFORMADA
+serie = st.sidebar.checkbox('Mostrar parte 1 serie de Fourier.')
+transformada = st.sidebar.checkbox('Mostrar parte 2 transformada de Fourier.')
 
-st.sidebar.write('Has seleccionado la función tipo :', opcion)
+if serie:
 
-armonicos=st.sidebar.number_input("Ingrese el numero de armonicos",step=1,min_value=2,max_value=100,value=2)
-amplitud=st.sidebar.number_input("Ingrese el valor de la amplitud",step=1,min_value=1,max_value=10,value=1)
-x=np.arange(-np.pi,np.pi,0.001) 
+    #SELECCIONADOR DE SEÑALES
+    opcion = st.sidebar.selectbox(
+        'Escoja la señal que desea generar a continuación:',
+        ("Exponencial","Senoidal rectificada","Triangular","Rectangular","Rampa trapezoidal"))
 
-#DECLARACION DE FUNCIONES
-def funcion_grafica(x,y,sum):
-    st.title("Función "+ str(opcion))
-    fig,ax=fig.subplots()
-    ax.plot(x,sum,"r--")
-    fig.plot(x,y,"b")
-    ax.set_title("Serie de fourier con " + str(armonicos) + " armonicos")
-    ax.legend(['Fourier', 'Original'])
-    ax.set_xlabel("Eje x")
-    ax.set_ylabel("Eje y")
-    ax.grid(True)
-    st.pyplot(fig)
+    st.sidebar.write('Has seleccionado la función tipo :', opcion)
 
-# FUNCION EXPONENCIAL
-if opcion == "Exponencial":
+    armonicos=st.sidebar.number_input("Ingrese el numero de armonicos",step=1,min_value=2,max_value=100,value=2)
+    amplitud=st.sidebar.number_input("Ingrese el valor de la amplitud",step=1,min_value=1,max_value=10,value=1)
+    periodo=st.sidebar.number_input("Ingrese cuantos periodos desea visualizar",step=1,min_value=2,max_value=10,value=2)
+    x=np.arange(-np.pi,np.pi,0.001) 
 
-    y= amplitud*np.exp(x) 
-
-    An=[] 
-    Bn=[]
-
-    fun_cos=lambda x: np.exp(x)*cos(i*x)  
-    fun_sen=lambda x: np.exp(x)*sin(i*x)
-
-    sum=0
-
-    for i in range(armonicos):
-        an=quad(fun_cos,-np.pi,np.pi)[0]*(1.0/np.pi)
-        An.append(an*amplitud)
-
-    for i in range(armonicos):
-
-        bn=quad(fun_sen,-np.pi,np.pi)[0]*(1.0/np.pi)
-        Bn.append(bn*amplitud) 
-
-    for i in range(armonicos):
-        if i==0.0:
-            sum=sum+An[i]/2
-            
-        else:
-            sum=sum+(An[i]*np.cos(i*x)+Bn[i]*np.sin(i*x))
-            
-    funcion_grafica(x,y,sum)
-
-# FUNCION SENOIDAL RECTIFICADA
-elif opcion == "Senoidal rectificada":
-        
-    y=abs(np.sin(np.pi*x))
-    y=y*amplitud
-
-    An=[] 
-    Bn=[]
-
-    fun_cos=lambda x: amplitud*abs(np.sin(np.pi*x))*cos(i*x)  
-    fun_sen=lambda x: amplitud*abs(np.sin(np.pi*x))*sin(i*x)
-
-    sum=0
-
-    for i in range(armonicos):
-        an=quad(fun_cos,-np.pi,np.pi)[0]*(1.0/np.pi)
-        An.append(an)
-
-    for i in range(armonicos):
-
-        bn=quad(fun_sen,-np.pi,np.pi)[0]*(1.0/np.pi)
-        Bn.append(bn) 
-
-    for i in range(armonicos):
-        if i==0.0:
-            sum=sum+An[i]/2
-            
-        else:
-            sum=sum+(An[i]*np.cos(i*x)+Bn[i]*np.sin(i*x))
-            
-    funcion_grafica(x,y,sum)
-
-#FUNCION TRIANGULAR
-elif opcion == "Triangular":
-   
-    y = amplitud*signal.sawtooth(2*np.pi*x)
-
-    An=[] 
-    Bn=[]
-
-    fun_cos=lambda x: amplitud*signal.sawtooth(2*np.pi*x)*cos(i*x)  
-    fun_sen=lambda x: amplitud*signal.sawtooth(2*np.pi*x)*sin(i*x)
-
-    sum=0
-
-    for i in range(armonicos):
-        an=quad(fun_cos,-np.pi,np.pi)[0]*(1.0/np.pi)
-        An.append(an)
-
-    for i in range(armonicos):
-
-        bn=quad(fun_sen,-np.pi,np.pi)[0]*(1.0/np.pi)
-        Bn.append(bn) 
-
-    for i in range(armonicos):
-        if i==0.0:
-            sum=sum+An[i]/2
-            
-        else:
-            sum=sum+(An[i]*np.cos(i*x)+Bn[i]*np.sin(i*x))
-            
-    funcion_grafica(x,y,sum)
-
-# FUNCION CUADRADA
-elif opcion == "Rectangular":
-
-    y = amplitud*signal.square(2*np.pi*x)
-
-    An=[] 
-    Bn=[]
-
-    fun_cos=lambda x: amplitud*signal.square(2*np.pi*x)*cos(i*x)  
-    fun_sen=lambda x: amplitud*signal.square(2*np.pi*x)*sin(i*x)
-
-    sum=0
-
-    for i in range(armonicos):
-        an=quad(fun_cos,-np.pi,np.pi)[0]*(1.0/np.pi)
-        An.append(an)
-
-    for i in range(armonicos):
-
-        bn=quad(fun_sen,-np.pi,np.pi)[0]*(1.0/np.pi)
-        Bn.append(bn) 
-
-    for i in range(armonicos):
-        if i==0.0:
-            sum=sum+An[i]/2
-            
-        else:
-            sum=sum+(An[i]*np.cos(i*x)+Bn[i]*np.sin(i*x))
-
-    funcion_grafica(x,y,sum)
-
-if opcion == 'Rampa trapezoidal':
-    s=0.001
-    xinicio = 2
-    xfinal = 10
-    if xfinal>xinicio:
-        e=(xfinal-xinicio)/3
-        def tramo1(z):         
-            return z-xinicio    
-        def tramo2(z):         
-            return e    
-        def tramo3(z):         
-            return -z+xfinal     
-        a=xinicio
-        b=xinicio+e   
-        c=xinicio+2*e
-        d=xinicio+3*e
-        t= np.arange(xinicio, xfinal+s, s)
-        y=np.piecewise(t,[(a<=t) & (t<b),(b<=t)&(t<=c),(c<t)&(t<=d)],[lambda t:tramo1(t),lambda t: tramo2(t),lambda t:tramo3(t)])    
-        tramo1=np.vectorize(tramo1)     
-        fig.plot(t[t<b],tramo1(t[t<b]),c="c")  
-        tramo2=np.vectorize(tramo2) 
-        fig.plot(t[(b<=t)&(t<c)],tramo2(t[(b<=t)&(t<c)]),c="c") 
-        tramo3=np.vectorize(tramo3)     
-        fig.plot(t[(c<=t)&(t<=d)],tramo3(t[(c<=t)&(t<=d)]),c="c")  
-        fig.xlabel("t(s)")
-        fig.ylabel("x(t)")
-        fig.title("Gráfica x(t)")
+    #DECLARACION DE FUNCIONES
+    def funcion_grafica(x,y,sum,fase):
+        st.title("Función "+ str(opcion))
+        fig,ax=plt.subplots(2)
+        plt.subplots_adjust(hspace=.6)
+        ax[0].plot(x,sum,"r--")
+        ax[0].plot(x,y,"b")
+        ax[1].plot(x,fase)
+        ax[1].grid(True)
+        ax[1].set_title("Gráfico de fase con " + str(armonicos) + " armonicos")
+        ax[0].set_title("Serie de fourier con " + str(armonicos) + " armonicos")
+        ax[0].legend(['Fourier', 'Original'])
+        ax[0].set_ylabel("Eje y")
+        ax[0].grid(True)
         st.pyplot(fig)
+
+    # FUNCION EXPONENCIAL
+    if opcion == "Exponencial":
+
+        y= amplitud*np.exp(x) 
+
+        An=[] 
+        Bn=[]
+
+        fun_cos=lambda x: np.exp(x)*cos(i*x)  
+        fun_sen=lambda x: np.exp(x)*sin(i*x)
+
+        sum=0
+
+        for i in range(armonicos):
+            an=quad(fun_cos,-np.pi,np.pi)[0]*(1.0/np.pi)
+            An.append(an*amplitud)
+
+        for i in range(armonicos):
+            bn=quad(fun_sen,-np.pi,np.pi)[0]*(1.0/np.pi)
+            Bn.append(bn*amplitud) 
+
+        for i in range(armonicos):
+            if i==0.0:
+                sum=sum+An[i]/2
+            else:
+                sum=sum+(An[i]*np.cos(i*x)+Bn[i]*np.sin(i*x))
+            
+            phase=(-np.arctan(sum)**-1)
+    
+            
+        funcion_grafica(x,y,sum,phase)
+
+    # FUNCION SENOIDAL RECTIFICADA
+    elif opcion == "Senoidal rectificada":
+            
+        y=abs(np.sin(np.pi*x))
+        y=y*amplitud
+
+        An=[] 
+        Bn=[]
+
+        fun_cos=lambda x: amplitud*abs(np.sin(np.pi*x))*cos(i*x)  
+        fun_sen=lambda x: amplitud*abs(np.sin(np.pi*x))*sin(i*x)
+
+        sum=0
+
+        for i in range(armonicos):
+            an=quad(fun_cos,-np.pi,np.pi)[0]*(1.0/np.pi)
+            An.append(an)
+
+        for i in range(armonicos):
+
+            bn=quad(fun_sen,-np.pi,np.pi)[0]*(1.0/np.pi)
+            Bn.append(bn) 
+
+        for i in range(armonicos):
+            if i==0.0:
+                sum=sum+An[i]/2
+                
+            else:
+                sum=sum+(An[i]*np.cos(i*x)+Bn[i]*np.sin(i*x))
+                
+        funcion_grafica(x,y,sum)
+
+    #FUNCION TRIANGULAR
+    elif opcion == "Triangular":
+    
+        y = amplitud*signal.sawtooth(2*np.pi*x)
+
+        An=[] 
+        Bn=[]
+
+        fun_cos=lambda x: amplitud*signal.sawtooth(2*np.pi*x)*cos(i*x)  
+        fun_sen=lambda x: amplitud*signal.sawtooth(2*np.pi*x)*sin(i*x)
+
+        sum=0
+
+        for i in range(armonicos):
+            an=quad(fun_cos,-np.pi,np.pi)[0]*(1.0/np.pi)
+            An.append(an)
+
+        for i in range(armonicos):
+
+            bn=quad(fun_sen,-np.pi,np.pi)[0]*(1.0/np.pi)
+            Bn.append(bn) 
+
+        for i in range(armonicos):
+            if i==0.0:
+                sum=sum+An[i]/2
+                
+            else:
+                sum=sum+(An[i]*np.cos(i*x)+Bn[i]*np.sin(i*x))
+                
+        funcion_grafica(x,y,sum)
+
+    # FUNCION CUADRADA
+    elif opcion == "Rectangular":
+
+        y = amplitud*signal.square(2*np.pi*x)
+
+        An=[] 
+        Bn=[]
+
+        fun_cos=lambda x: amplitud*signal.square(2*np.pi*x)*cos(i*x)  
+        fun_sen=lambda x: amplitud*signal.square(2*np.pi*x)*sin(i*x)
+
+        sum=0
+
+        for i in range(armonicos):
+            an=quad(fun_cos,-np.pi,np.pi)[0]*(1.0/np.pi)
+            An.append(an)
+
+        for i in range(armonicos):
+
+            bn=quad(fun_sen,-np.pi,np.pi)[0]*(1.0/np.pi)
+            Bn.append(bn) 
+
+        for i in range(armonicos):
+            if i==0.0:
+                sum=sum+An[i]/2
+                
+            else:
+                sum=sum+(An[i]*np.cos(i*x)+Bn[i]*np.sin(i*x))
+
+        funcion_grafica(x,y,sum)
+
+    # RAMPA TRAPEZOIDAL
+    if opcion == 'Rampa trapezoidal':
+        
+        fig,ax=plt.subplots()
+
+        def trapzoid_signal(t, width=2., slope=1., amp=1., offs=0):
+            a = slope*width*signal.sawtooth(2*np.pi*t/width, width=0.5)/4.
+            a += slope*width/4.
+            a[a>amp] = amp
+            return a + offs
+
+        for w,s,a in zip([10], [1], [3.25]):
+            t = np.linspace(0, w, 501)
+            l = "width={}, slope={}, amp={}".format(w,s,a)
+
+        y=trapzoid_signal(t, width=w, slope=s, amp=a)
+        ax.plot(t,y)
+        ax.set_title("Serie de fourier con " + str(armonicos) + " armonicos")
+        ax.grid(True)
+
+        st.pyplot(fig)
+
+
+#ETAPA TRANSFORMADA DE FOURIER
+
+if transformada:
+
+    num= st.sidebar.number_input("Ingrese el numero de muestras que desea tomar: ",
+    step=10,min_value=1,max_value=10000,value=1)
+
+    samplingFrequency= st.sidebar.number_input("Ingrese el valor de la frecuencia de muestreo: ",
+    step=10,min_value=1,max_value=100,value=1)
+
+    samplingInterval= 1/samplingFrequency
+
+# INGRESE EL VALOR DE LAS FRECUENCIAS DE CADA SEÑAL
+    signal1Frequency=st.sidebar.number_input("Ingrese el valor de frecuencia de la señal 1 ",
+    step=1,min_value=1,max_value=150,value=1)
+
+    signal2Frequency=st.sidebar.number_input("Ingrese el valor de frecuencia de la señal 2 ",
+    step=1,min_value=1,max_value=130,value=2)
+
+    signal3Frequency=st.sidebar.number_input("Ingrese el valor de frecuencia de la señal 3 ",
+    step=1,min_value=1,max_value=140,value=3)
+
+    wo1=2*np.pi*signal1Frequency
+    wo2=2*np.pi*signal2Frequency
+    wo3=2*np.pi*signal3Frequency
+
+    time= np.arange(0,10,samplingInterval)
+    
+    y1 = np.sin(wo1*time)
+    y2 = np.cos(wo2*time)
+    y3 = np.sin(wo3*time)
+
+    a1= st.number_input("Ingrese el valor de amplitud para la señal número 1: ",
+    min_value=0,max_value=10,step=1,value=1)
+
+    a2= st.number_input("Ingrese el valor de amplitud para la señal número 2: ",
+    min_value=0,max_value=10,step=1,value=1)
+
+    a3= st.number_input("Ingrese el valor de amplitud para la señal número 3: ",
+    min_value=0,max_value=10,step=1,value=1)
+
+    y1=y1*a1
+    y2=y2*a2
+    y3=y3*a3
+
+
+    figure, axis = plt.subplots(2)
+    plt.subplots_adjust(hspace=1)
+
+    amplitude = y1+y2+y3
+
+    axis[0].set_title('Sine wave with multiple frequencies')
+    axis[0].plot(time, amplitude)
+    axis[0].set_xlabel('Time')
+    axis[0].set_ylabel('Amplitude')
+    
+    fourierTransform = np.fft.fft(amplitude)/len(amplitude)           # Normalize amplitude
+    fourierTransform = fourierTransform[range(int(len(amplitude)))] # Exclude sampling frequency
+
+    tpCount= len(amplitude)
+    values = np.arange(int(tpCount))
+    timePeriod  = tpCount/samplingFrequency
+    frequencies = values/timePeriod
+
+    axis[1].set_title('Fourier transform depicting the frequency components')
+    axis[1].plot(frequencies, abs(2*fourierTransform))
+    axis[1].set_xlabel('Frequency')
+    axis[1].set_ylabel('Amplitude')
+
+    st.pyplot()
+    st.set_option('deprecation.showPyplotGlobalUse', False)
